@@ -49,18 +49,18 @@ export default function BookService() {
     if (!user) return;
     setLoading(true);
     try {
-      await safeRequest(
-        () => api.post("/bookings", { ...parsed.data, userId: user.id, price }),
-        () => mockDb.createBooking({
-          userId: user.id, userName: user.name,
-          service: form.service, date: form.date, time: form.time,
-          address: form.address, notes: form.notes, price,
-        }),
-      );
-      toast.success("Booking confirmed! We'll match you with a pro shortly.");
-      navigate("/my-bookings");
+      // Redirect to payment page with booking details
+      const params = new URLSearchParams({
+        service: form.service,
+        date: form.date,
+        time: form.time,
+        address: form.address,
+        amount: String(price),
+        notes: form.notes || "",
+      });
+      navigate(`/payment?${params.toString()}`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not book");
+      toast.error(err instanceof Error ? err.message : "Could not proceed");
     } finally { setLoading(false); }
   }
 

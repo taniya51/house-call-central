@@ -10,6 +10,7 @@ import Landing from "@/pages/user/Landing";
 import UserLogin from "@/pages/user/UserLogin";
 import UserRegister from "@/pages/user/UserRegister";
 import BookService from "@/pages/user/BookService";
+import Payment from "@/pages/user/Payment";
 import MyBookings from "@/pages/user/MyBookings";
 import TrackHelper from "@/pages/user/TrackHelper";
 
@@ -41,6 +42,8 @@ const App = () => (
             <Route path="/login" element={<UserLogin />} />
             <Route path="/register" element={<UserRegister />} />
             <Route path="/book" element={<BookService />} />
+            <Route path="/payment" element={<ProtectedRoute role="user" redirectTo="/login"><Payment /></ProtectedRoute>} />
+            <Route path="/user/my-bookings" element={<ProtectedRoute role="user" redirectTo="/login"><MyBookings /></ProtectedRoute>} />
             <Route path="/my-bookings" element={<ProtectedRoute role="user" redirectTo="/login"><MyBookings /></ProtectedRoute>} />
             <Route path="/track" element={<ProtectedRoute role="user" redirectTo="/login"><TrackHelper /></ProtectedRoute>} />
 
