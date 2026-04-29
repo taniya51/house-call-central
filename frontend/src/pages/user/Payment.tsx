@@ -35,10 +35,17 @@ export default function Payment() {
   const [paymentMethod, setPaymentMethod] = useState<"now" | "after" | null>(null);
 
   useEffect(() => {
-    // Load Razorpay script
+    // Load Razorpay script dynamically with proper onload callback
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
+    script.onload = () => {
+      console.log("Razorpay script loaded successfully");
+    };
+    script.onerror = () => {
+      console.error("Failed to load Razorpay script");
+      toast.error("Failed to load payment gateway. Please refresh and try again.");
+    };
     document.body.appendChild(script);
 
     return () => {
@@ -119,6 +126,12 @@ export default function Payment() {
           },
         },
       };
+
+      if (!window.Razorpay) {
+        toast.error("Payment gateway not loaded. Please refresh the page and try again.");
+        setProcessing(false);
+        return;
+      }
 
       const razorpay = new window.Razorpay(options);
       razorpay.open();

@@ -5,6 +5,23 @@
 /* HomeServe Design System — Three portals, one cohesive token system.
    All colors HSL. No raw colors in components. */
 
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow-y: auto;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
 @layer base {
   :root {
     /* USER PORTAL — Navy + Cyan */

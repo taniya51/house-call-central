@@ -1,12 +1,98 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MapPin, Phone, MessageCircle, Navigation } from "lucide-react";
+import { MapPin, Phone, MessageCircle, Navigation, CreditCard, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { UserLayout } from "@/components/layouts/UserLayout";
 import { useAuth } from "@/context/AuthContext";
 import { Booking, mockDb } from "@/lib/mockDb";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
+
+interface PaymentButtonProps {
+  bookingId: string;
+  amount: number;
+  service: string;
+  userName: string;
+  userEmail: string;
+}
+
+function PaymentButton({ bookingId, amount, service, userName, userEmail }: PaymentButtonProps) {
+  const [processing, setProcessing] = useState(false);
+
+  const handlePayNow = async () => {
+    setProcessing(true);
+
+    try {
+      // Load Razorpay script dynamically
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      script.onload = () => {
+        const options = {
+          key: "rzp_test_1DP5mmOlF5G5ag", // Razorpay test key
+          amount: 49900, // ₹499 in paise
+          currency: "INR",
+          name: "HomeServe",
+          description: `Payment for ${service} booking`,
+          order_id: bookingId,
+          prefill: {
+            name: userName,
+            email: userEmail,
+          },
+          handler: (response: any) => {
+            // Payment successful
+            toast.success("Payment successful! Booking confirmed.");
+            setProcessing(false);
+          },
+          modal: {
+            ondismiss: () => {
+              setProcessing(false);
+              toast.error("Payment cancelled");
+            },
+          },
+        };
+
+        if (!window.Razorpay) {
+          toast.error("Payment gateway not available. Please refresh and try again.");
+          setProcessing(false);
+          return;
+        }
+
+        const razorpay = new window.Razorpay(options);
+        razorpay.open();
+      };
+      script.onerror = () => {
+        toast.error("Failed to load payment gateway");
+        setProcessing(false);
+      };
+      document.body.appendChild(script);
+    } catch (error) {
+      toast.error("Failed to process payment");
+      setProcessing(false);
+    }
+  };
+
+  return (
+    <Button
+      onClick={handlePayNow}
+      disabled={processing}
+      className="w-full bg-gradient-cta text-primary-foreground hover:opacity-95"
+    >
+      {processing ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Processing...
+        </>
+      ) : (
+        <>
+          <CreditCard className="mr-2 h-4 w-4" />
+          Pay Now (₹499)
+        </>
+      )}
+    </Button>
+  );
+}
 
 export default function TrackHelper() {
   const { user } = useAuth();
@@ -115,6 +201,17 @@ export default function TrackHelper() {
                     <Button variant="outline" className="flex-1"><Phone className="mr-2 h-4 w-4" /> Call</Button>
                     <Button variant="outline" className="flex-1"><MessageCircle className="mr-2 h-4 w-4" /> Chat</Button>
                   </div>
+                  {(booking.status === "completed" || !booking.providerId) && (
+                    <div className="mt-4">
+                      <PaymentButton 
+                        bookingId={booking.id} 
+                        amount={booking.price} 
+                        service={booking.service} 
+                        userName={user?.name || "Customer"} 
+                        userEmail={user?.email || ""} 
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
                   <div className="text-sm font-semibold mb-3">Trip progress</div>
