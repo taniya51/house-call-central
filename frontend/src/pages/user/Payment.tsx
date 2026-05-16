@@ -104,18 +104,17 @@ export default function Payment() {
 
       // Open Razorpay payment
       const options = {
-        key: "rzp_test_1DP5mmOlF5G5ag", // Razorpay test key
-        amount: booking.amount * 100, // Amount in paise
+        key: "rzp_test_1DP5mmOlF5G5ag",
+        amount: 49900,
         currency: "INR",
         name: "HomeServe",
-        description: `Payment for ${booking.service} booking`,
+        description: "Home Service Booking",
         order_id: bookingId,
         prefill: {
           name: user.name,
           email: user.email,
         },
         handler: async (response: any) => {
-          // Payment successful
           toast.success("Payment successful! Your booking is confirmed.");
           navigate("/user/my-bookings");
         },
