@@ -31,15 +31,19 @@ export default function AdminLogin() {
       const { token, user } = response.data;
       if (user.role !== "admin") {
         toast.error("Admin access required");
+        setLoading(false);
         return;
       }
       localStorage.setItem("hs_token", token);
       localStorage.setItem("hs_user", JSON.stringify(user));
       toast.success("Welcome, admin");
-      navigate("/admin/dashboard");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Invalid credentials");
-    } finally { setLoading(false); }
+      setTimeout(() => {
+        navigate("/admin/dashboard", { replace: true });
+      }, 500);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Invalid credentials");
+      setLoading(false);
+    }
   }
 
   return (
