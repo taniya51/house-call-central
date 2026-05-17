@@ -75,6 +75,14 @@ export default function Payment() {
 
     try {
       // First, create the booking
+      const token = localStorage.getItem("hs_token");
+      if (!token) {
+        toast.error("Session expired. Please log in again.");
+        navigate("/login");
+        setProcessing(false);
+        return;
+      }
+
       const bookingResponse = await safeRequest(
         () =>
           api.post("/bookings", {
@@ -84,6 +92,10 @@ export default function Payment() {
             booking_time: booking.time,
             address: booking.address,
             description: booking.notes,
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
           }),
         () => {
           mockDb.createBooking({
@@ -104,7 +116,7 @@ export default function Payment() {
 
       // Open Razorpay payment
       const options = {
-        key: "rzp_test_1DP5mmOlF5G5ag",
+        key: "rzp_test_Sq8ZtcOGeUBZmp",
         amount: 49900,
         currency: "INR",
         name: "HomeServe",
@@ -145,6 +157,14 @@ export default function Payment() {
     setProcessing(true);
 
     try {
+      const token = localStorage.getItem("hs_token");
+      if (!token) {
+        toast.error("Session expired. Please log in again.");
+        navigate("/login");
+        setProcessing(false);
+        return;
+      }
+
       await safeRequest(
         () =>
           api.post("/bookings", {
@@ -154,6 +174,10 @@ export default function Payment() {
             booking_time: booking.time,
             address: booking.address,
             description: booking.notes,
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
           }),
         () => {
           mockDb.createBooking({
